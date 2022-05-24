@@ -4,14 +4,14 @@
 \alias{getNeighbor}
 \title{Identify desired neighbors and calculate weighted expression levels}
 \usage{
-getNeighbor(neighbor_dist, round.dist, expr.mat)
+getNeighbor(neighbor_dist, round.dist, ST.mat)
 }
 \arguments{
 \item{neighbor_dist}{A numeric input that indicates the distance between desired neighboring pairs}
 
 \item{round.dist}{The rounded distance matrix}
 
-\item{expr.mat}{The expression matrix}
+\item{ST.mat}{The ST matrix}
 }
 \value{
 A matrix

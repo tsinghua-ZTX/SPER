@@ -4,7 +4,7 @@
 \alias{gg_gene}
 \title{Plot the spatial figures for genes / cell types}
 \usage{
-gg_gene(feature, spatial_df, coord, type = "Estimated")
+gg_gene(feature, spatial_df, coord, title.anno = "Estimated")
 }
 \arguments{
 \item{feature}{Specific spatial feature to plot}
@@ -12,6 +12,8 @@ gg_gene(feature, spatial_df, coord, type = "Estimated")
 \item{spatial_df}{A data.frame with rows as spatial spots and columns as each features}
 
 \item{coord}{Spatial coordinates that match the spatial data}
+
+\item{title.anno}{Annotation of the title}
 }
 \value{
 a ggplot2 object

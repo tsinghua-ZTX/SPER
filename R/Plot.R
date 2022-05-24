@@ -3,12 +3,14 @@
 #' With spatial data, coordinates and given specific feature (gene or cell type), this function plots the  
 #' map of this feature's spatial distribution.
 #'
+#' @import ggplot2
 #' @param feature Specific spatial feature to plot
 #' @param spatial_df A data.frame with rows as spatial spots and columns as each features
 #' @param coord Spatial coordinates that match the spatial data
+#' @param title.anno Annotation of the title
 #' @return a ggplot2 object
 #' @export
-gg_gene <- function(feature, spatial_df, coord, type = "Estimated"){
+gg_gene <- function(feature, spatial_df, coord, title.anno = "Estimated"){
   p <- ggplot() + 
     geom_point(aes(x = coord$imagecol, 
                    y = coord$imagerow, 
@@ -18,9 +20,9 @@ gg_gene <- function(feature, spatial_df, coord, type = "Estimated"){
                           mfeature = "purple", 
                           mfeaturepoint = max(spatial_df[,feature], na.rm = T) / 2) +
     theme_bw() + 
-    labs(x = "X / μm", 
-         y = "Y / μm", 
-         title = paste0(feature, " ", type,  " Spatial Distribution"), 
+    labs(x = "X / um", 
+         y = "Y / um", 
+         title = paste0(feature, " ", title.anno,  " Spatial Distribution"), 
          col = feature) +
     theme(aspect.ratio = 1)
   return(p)
@@ -31,6 +33,7 @@ gg_gene <- function(feature, spatial_df, coord, type = "Estimated"){
 #' Draw the plot of: 1) the SPER curve of the indicated pair; 2) the expression level of the gene in scRNA-seq
 #' reference data; 3) spatial map using gg_gene
 #'
+#' @import ggplot2
 #' @param gene.id   Gene ID
 #' @param cell.type Name of cell type
 #' @param plot.dir  Directory to save the plots
@@ -44,18 +47,18 @@ visualizePairCor <- function(gene.id,
                              dist.list = dist_list,
                              reference = allen_reference){
   dir.create(plot.dir, showWarnings = F, recursive = T)
-  jpeg(paste0(plot.dir, "/", gene.id, "_", cell.type, "_lineplot.jpg"), quality = 100)
+  grDevices::jpeg(paste0(plot.dir, "/", gene.id, "_", cell.type, "_lineplot.jpg"), quality = 100)
   plot(x = dist.list, 
        y = rf_pair_cor_list[[cell.type]][,gene.id], 
        type = "b",
        main = paste0(gene.id, " : ", cell.type),
        ylab = "Average Expression Densitty",
-       xlab = "Distance / μm")
-  dev.off()
-  p1 <- VlnPlot(reference,
-                features = gene.id,
-                pt.size = 0.2,
-                ncol = 1)
+       xlab = "Distance / um")
+  grDevices::dev.off()
+  p1 <- Seurat::VlnPlot(reference,
+                        features = gene.id,
+                        pt.size = 0.2,
+                        ncol = 1)
   Sys.sleep(0.5)
   ggsave(paste0(plot.dir, "/", gene.id, "_expression.jpg"), p1, width = 8, height = 5)
   p2 <- gg_gene(gene.id, ST_expression, coordinates)
@@ -69,6 +72,7 @@ visualizePairCor <- function(gene.id,
 #' Generate a series of plots of SDGs discovered by 'findSDG': the SPER curve is plotted, and a spatial map
 #' showing the spatial of both the gene and the cell type is generated. 
 #'
+#' @import ggplot2
 #' @param cell.type       Cell Type Name
 #' @param gene.id         Gene ID
 #' @param score           SPER score shown in the plot title
@@ -95,18 +99,18 @@ plotSDG <- function(cell.type,
                     plot.dir = "Plots/Feature Gene/"){
   # gg_gene(gene.id, ST.data, coordinates)
   # gg_gene(cell.type, CoDa.data, coordinates)
-  pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
+  grDevices::pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
   plot(x = dist_list, 
        y = SPER.data[[cell.type]][,gene.id], type = "b", 
        xlab = "Distance / um",
        ylab = "Expression Ratio",
        main = paste0(cell.type, ": ", gene.id))
-  dev.off()
+  grDevices::dev.off()
   
-  VlnPlot(reference.data,
-          features = gene.id,
-          pt.size = 0.2,
-          ncol = 1)
+  Seurat::VlnPlot(reference.data,
+                  features = gene.id,
+                  pt.size = 0.2,
+                  ncol = 1)
   ggsave(paste0(plot.dir, gene.id, " expr.pdf"), width = 8, height = 5)
   int_signal <- (ST.data[,gene.id] > 0) + as.numeric(CoDa.data[,cell.type] > thershold) * 2
   p1 <- ggplot() + 

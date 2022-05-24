@@ -35,6 +35,8 @@ findSDG(
 \item{expr.fraction}{Threshold on expression prevalence: pairs whose prevalence smaller
 than the threshold will be kept}
 
+\item{method.name}{Name of the method}
+
 \item{only.extra}{Boolean value: only consider the candidate genes}
 
 \item{plot.feature}{Boolean value: plot the SDG using 'plotFeatureGene'}
@@ -43,6 +45,8 @@ than the threshold will be kept}
 
 \item{calc.receptor.frac}{Boolean value: calculate the fraction of receptors that expressed in the target
 cell types. A column of these receptors must be provided in the extra.gene.list as 'gene2'.}
+
+\item{LRP.data}{Ligand-receptor pair data}
 
 \item{except.marker}{Boolean value: ignore the marker of the cell types}
 

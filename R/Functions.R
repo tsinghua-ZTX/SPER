@@ -13,6 +13,7 @@ probalized <- function(x){
   }
 }
 
+
 #' Normalize a vector: L2 norm
 #'
 #' This function normalizes a given vector so that the length (L2) of a vector is 1
@@ -29,9 +30,9 @@ normalizd <- function(x){
 }
 
 
-#' Scale the range of a list of numbers to [0, 1] 
+#' Scale the range of a list of numbers from 0 to 1
 #'
-#' Return the scaled vector whose range is [0, 1]
+#' Return the scaled vector whose range is from 0 to 1
 #'
 #' @param x An Input vector
 #' @return Scaled vector
@@ -40,16 +41,12 @@ range_1 <- function(x){(x-min(x))/(max(x)-min(x))}
 
 
 
-##  Find the spatial feature gene based on the rank matrix provided; 
-##    - plot them by plotFeatureGene
-##    - return the p-value of hypergeometric dist. for the extracellular genes
-##  Test function on PD ratio
-
 #' Find the spatial dependent gene (SDG) based on SPER scores
 #'
 #' This function helps find the SDG based on the given threshold in both SPER scores and 
 #' expression prevalence. 
-#'
+#' 
+#' @import dplyr
 #' @param cell.type       Cell Type Name
 #' @param score.mat       Score matrix (SPER, or correlations)
 #' @param extra.gene.list The gene list of interest: could be extracellular or ligand gene sets
@@ -65,6 +62,8 @@ range_1 <- function(x){(x-min(x))/(max(x)-min(x))}
 #' @param except.marker   Boolean value: ignore the marker of the cell types
 #' @param marker.gene     The marker gene matrix with a column 'Type' indicating the cell type information and
 #' 'Gene' indicating the gene ID
+#' @param LRP.data        Ligand-receptor pair data
+#' @param method.name     Name of the method
 #' @return Scaled vector
 #' @export
 findSDG <- function(cell.type,
@@ -95,11 +94,11 @@ findSDG <- function(cell.type,
   if(only.extra){
     extra.feature.gene.list <- intersect(feature.gene.list, extra.gene.list)
   }
-  res <- phyper(length(extra.feature.gene.list) - 1, 
-                length(extra.gene.list), 
-                nrow(score.mat) - length(extra.gene.list),
-                length(feature.gene.list),
-                lower.tail = FALSE)
+  res <- stats::phyper(length(extra.feature.gene.list) - 1, 
+                       length(extra.gene.list), 
+                       nrow(score.mat) - length(extra.gene.list),
+                       length(feature.gene.list),
+                       lower.tail = FALSE)
   ## Return the odds ratio if wanted
   # res2 <- (length(extra.feature.gene.list) / length(feature.gene.list)) / 
   #   (length(extra.gene.list) / nrow(score.mat))
@@ -146,11 +145,11 @@ findSDG <- function(cell.type,
       filter(gene2 %in% potential.receptor)
     
     if(nrow(tmp2) == 0){return(c(1,0,0))}
-    res <- phyper(nrow(tmp2) - 1, 
-                  nrow(tmp2_remain), 
-                  nrow(LRP.data) - nrow(tmp2_remain),
-                  nrow(tmp),
-                  lower.tail = FALSE)
+    res <- stats::phyper(nrow(tmp2) - 1, 
+                         nrow(tmp2_remain), 
+                         nrow(LRP.data) - nrow(tmp2_remain),
+                         nrow(tmp),
+                         lower.tail = FALSE)
     return(c(res, nrow(tmp2), nrow(tmp)))
     
     # max_rep_frac <- rep(0, length(extra.feature.gene.list))

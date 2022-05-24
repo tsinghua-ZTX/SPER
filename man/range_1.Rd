@@ -2,7 +2,7 @@
 % Please edit documentation in R/Functions.R
 \name{range_1}
 \alias{range_1}
-\title{Scale the range of a list of numbers to \link{0, 1}}
+\title{Scale the range of a list of numbers from 0 to 1}
 \usage{
 range_1(x)
 }
@@ -13,5 +13,5 @@ range_1(x)
 Scaled vector
 }
 \description{
-Return the scaled vector whose range is \link{0, 1}
+Return the scaled vector whose range is from 0 to 1
 }

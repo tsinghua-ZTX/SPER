@@ -17,8 +17,8 @@ gg_gene <- function(feature, spatial_df, coord, title.anno = "Estimated"){
                    col = spatial_df[,feature])) + 
     scale_color_gradient2(low = "darkblue", 
                           high = "yellow", 
-                          mfeature = "purple", 
-                          mfeaturepoint = max(spatial_df[,feature], na.rm = T) / 2) +
+                          mid = "purple", 
+                          midpoint = max(spatial_df[,feature], na.rm = T) / 2) +
     theme_bw() + 
     labs(x = "X / um", 
          y = "Y / um", 

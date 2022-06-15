@@ -55,7 +55,7 @@ SPER <- function(dist.mat,
   if(!is.matrix(CoDa.data)){
     CoDa.data <- as.matrix(CoDa.data)
   }
-  
+  CoDa.data <- apply(CoDa.data, 2, function(x){x / sum(x)})
   pair_cor_list <- getSPERmat(dist.mat, 
                               ST.mat, 
                               dist.list)

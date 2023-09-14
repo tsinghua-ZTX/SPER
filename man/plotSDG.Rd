@@ -2,19 +2,20 @@
 % Please edit documentation in R/Plot.R
 \name{plotSDG}
 \alias{plotSDG}
-\title{Plot the spatial dependent gene (SDG) based on SPER scores}
+\title{Visualize SPER scores of a gene/cell-type pair}
 \usage{
 plotSDG(
   cell.type,
   gene.id,
   score = NULL,
   thershold = 0.3,
-  coord = coordinates_test,
-  ST.data = ST_expression,
-  CoDa.data = KP_local$Z,
-  reference.data = allen_reference,
-  SPER.data = rf_pair_cor_list,
-  plot.dir = "Plots/Feature Gene/"
+  coord,
+  ST.data,
+  CoDa.data,
+  reference.data,
+  SPER.data,
+  dist.list,
+  plot.dir = "./Plots/Feature Gene/"
 )
 }
 \arguments{
@@ -38,12 +39,14 @@ distribution}
 
 \item{SPER.data}{SPER list to plot the SPER curve}
 
+\item{dist.list}{A vector containing the list of desired distance values}
+
 \item{plot.dir}{Directory to save the plots}
 }
 \value{
 Null
 }
 \description{
-Generate a series of plots of SDGs discovered by 'findSDG': the SPER curve is plotted, and a spatial map
-showing the spatial of both the gene and the cell type is generated.
+Generate a series of plots of SDGs discovered by 'findSDG': 1) the SPER curve of the indicated pair; 2) the expression level of the gene in scRNA-seq
+reference data; 3) a spatial map showing the spatial of both the gene and the cell type is also generated.
 }

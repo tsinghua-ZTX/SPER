@@ -4,7 +4,7 @@
 \alias{SPER}
 \title{Calculate the SPER score list}
 \usage{
-SPER(dist.mat, dist.list, ST.mat, CoDa.data)
+SPER(dist.mat, dist.list, ST.mat, CoDa.data, gene.list = NULL)
 }
 \arguments{
 \item{dist.mat}{Distance matrix after rounded}
@@ -14,6 +14,8 @@ SPER(dist.mat, dist.list, ST.mat, CoDa.data)
 \item{ST.mat}{The ST matrix}
 
 \item{CoDa.data}{Cell-type spatial compositional data}
+
+\item{gene.list}{Gene ID list; to specify SPER running on a given list of genes instead of all genes in the spatial transciptomics matrix.}
 }
 \value{
 A list of matrix, each representing the SPER subscores at a given distance

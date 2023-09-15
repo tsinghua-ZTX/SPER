@@ -17,16 +17,7 @@ library(Seurat)
 # Example: adult mouse brain spatial transciptomics dataset
 
 ## Dataset
-You can download all the datasets through Dropbox: [link provided]
-- Spatial transcriptomics (ST) data are located at "data/Mouse_Brain_ST_data.h5", which should be loaded though Seurat 
-  - It contains the transcriptomics information of all spots in the provided mouse brain sample. One can treat each spot as one RNA-seq outcome that has thousands of genes.
-- Distance matrix is located at "data/rounded_distance_matrix.txt"
-  - This big matrix records the distance information between every two spots. 
-  - One can get this matrix from the physical coordinates just by few steps. This means that you can actually obtain it from the ST dataset.
-- Cell-type spatial compositional data are located at "data/spatial_data.txt"
-  - It contains the spatial distributions of all cell types with the help of distance matrix.
-  - One can either use the 'raw' data calculated from cell-type decomposition algorithms, or use the data after CoKriging, which can model the desired inter-cell-type spatial relationship and also remove background noise 
-  - Here we provide the after-CoKriging compositional data
+- We have provided a small example where you have 37 genes across 2695 spots in the spatial transcriptomics (ST) data 'ST_expression_data'. We also included the physical coordinates of all these spots as 'ST_coordinates'. 
   
 ```{r}
 ####  Spatial transcriptomics data
@@ -37,12 +28,26 @@ head(ST_coordinates)
 spot_dist <- as.matrix(dist(ST_coordinates))
 round_dist_mat <- ceiling(spot_dist / 120) * 120
 round_dist_mat[which(round_dist_mat > 1800)] <- 1800
+```
 
+- If wanted, one can plot the gene's spatial distribution among the spots using 'gg_gene' function
+
+```{r}
+gg_gene("Grp",
+        ST_expression_data,
+        coord = ST_coordinates,
+        title.anno = "Gene")
+```
+
+- Another important component of SPER is the cell-type spatial compositional data. Usually, one can get them by using cell type decomposition algorithms on a ST dataset. Here we just provide the results which is obtained from RCTD algorithms (now as a part of spacexr).
+
+```{r}
 ####  spatial compositional data
 head(spatial_comp_data)
 ```
 
-## Example: 
+
+## SPER: 
 - With given data, we can run SPER and get the outcome as a list. The list has each gene as the name of an element where it actually contains the spatial paired expression matrix between the gene and all cell types. 
 
 ```{r}
@@ -65,13 +70,6 @@ SPER_res <- weightSPER(res,
 head(SPER_res)
 ```
 
-- 
+- After applying the weight, we can finally get the matrix of SPER scores for each gene/cell-type pair. In the matrix, the values represent, depending the weights you have applied, the strength of spatial relationship between the gene and cells. In our example, we used the 'paracrine' weight which has its focus on the distance of 240, 360, and 480 microns.
 
-## Example of visualizaiton: gene spatial distribution
-```{r}
-gg_gene("Grp",
-        ST_expression_data,
-        coord = ST_coordinates,
-        title.anno = "Gene")
-```
 

@@ -1,5 +1,5 @@
 Package: SPER
-Title: Calculate Spatial Paired Expression Ratio
+Title: Spatial Paired Expression Ratio
 Version: 0.0.0.9000
 Authors@R: c(
   person(given = "Tianxiao", family = "Zhao", 
@@ -12,10 +12,10 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
-    dplyr,
-    ggplot2,
+    dplyr (>= 1.1.2),
+    ggplot2 (>= 3.4.0),
     grDevices,
-    Seurat,
+    Seurat (>= 4.3.0),
     stats
 Suggests: 
     knitr,

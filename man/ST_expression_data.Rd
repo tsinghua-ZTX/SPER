@@ -5,7 +5,7 @@
 \alias{ST_expression_data}
 \title{ST_expression_data}
 \format{
-An object of class \code{matrix} (inherits from \code{array}) with 2695 rows and 37 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 2695 rows and 39 columns.
 }
 \usage{
 ST_expression_data

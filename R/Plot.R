@@ -64,7 +64,7 @@ plotSDG <- function(cell.type,
                     reference.data,
                     SPER.data,
                     dist.list,
-                    plot.dir = "./Plots/Feature Gene/",
+                    plot.dir = "./Plots/",
                     save.plots = F){
   dir.create(plot.dir, showWarnings = FALSE, recursive = T)
   # grDevices::pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
@@ -96,23 +96,24 @@ plotSDG <- function(cell.type,
                         pt.size = 0.2,
                         ncol = 1)
 
-  p3 <- ggplot(aes(x = dist.list,
+  p3 <- ggplot() +
+    geom_point(aes(x = dist.list,
                    y = SPER.data[[cell.type]][,gene.id])) +
-    geom_point() +
-    geom_line() +
+    geom_line(aes(x = dist.list,
+                  y = SPER.data[[cell.type]][,gene.id])) +
     theme_bw() +
     labs(x = "Distance / microns",
          y = "Expression Ratio",
          title = paste0(cell.type, ": ", gene.id))
 
   if(save.plots){
-    ggsave(paste0(plot.dir, gene.id, " spatial.pdf"), p1, width = 6, height = 5)
-    ggsave(paste0(plot.dir, gene.id, " expr.pdf"), p2, width = 8, height = 5)
-    ggsave(paste0(plot.dir, gene.id, " curve.pdf"), p3, width = 5, height = 4)
+    ggsave(paste0(plot.dir, gene.id, "_", cell.type, "_", "spatial.pdf"), p1, width = 6, height = 5)
+    ggsave(paste0(plot.dir, gene.id, "_", cell.type, "_", "expr.pdf"), p2, width = 8, height = 5)
+    ggsave(paste0(plot.dir, gene.id, "_", cell.type, "_", "curve.pdf"), p3, width = 5, height = 4)
 
     return()
   }else{
-    return(p1, p2, p3)
+    return(list(p1, p2, p3))
   }
 }
 

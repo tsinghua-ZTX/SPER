@@ -15,7 +15,7 @@ plotSDG(
   reference.data,
   SPER.data,
   dist.list,
-  plot.dir = "./Plots/Feature Gene/",
+  plot.dir = "./Plots/",
   save.plots = F
 )
 }

@@ -11,7 +11,6 @@ vignette: >
 library(SPER)
 ##  Other necessary libraries
 library(Seurat)
-# library(dplyr)
 ```
 
 # Example: adult mouse brain spatial transciptomics dataset
@@ -75,9 +74,9 @@ head(SPER_res)
 ## Visualization:
 
 - To visualize our SPER results, we may need more data than what have been provided in the package. Specifically, we will need: 
-  - 1) an external single-cell RNA-seq reference, which can be used as a validation to tell you gene's expression profile across cell types; 
-  - 2) cell-type-specific gene list (marker gene list). As SPER detects spatial association, there is no wonder that cell-type-specific genes will be highly associated with their own cells and thus having a high SPER score. In order to remove them from our result, it would be better if we can have such a list of genes and find the difference between it and our SPER results.
-  - 3) ligand-receptor pair database (or other specified background). Since we are trying to find potential paracrine signals, they should be expected to be enriched in the ligand gene set or at least extracellular gene set. Furthermore, with the help of ligand-receptor pair information, we can evaluate the receptor's expression patterns in the target cells as a validation. 
+  1) an external single-cell RNA-seq reference, which can be used as a validation to tell you gene's expression profile across cell types; 
+  2) cell-type-specific gene list (marker gene list). As SPER detects spatial association, there is no wonder that cell-type-specific genes will be highly associated with their own cells and thus having a high SPER score. In order to remove them from our result, it would be better if we can have such a list of genes and find the difference between it and our SPER results.
+  3) ligand-receptor pair database (or other specified background). Since we are trying to find potential paracrine signals, they should be expected to be enriched in the ligand gene set or at least extracellular gene set. Furthermore, with the help of ligand-receptor pair information, we can evaluate the receptor's expression patterns in the target cells as a validation. 
   
 - All of the above datasets are too large to be included in a package, so one can download them from the [Dropbox link](https://www.dropbox.com/scl/fo/pep07jjid71rr72voeeik/h?rlkey=2agyojo1ugf5l61bqtal6hjy0&dl=0) and run the below codes by themselves. 
   - As a reminder, one should change the file directory to where you download the data. 
@@ -107,12 +106,19 @@ plotSDG(cell.type = "L5.IT",
         CoDa.data = spatial_comp_data,
         reference.data = allen_reference,
         SPER.data = res,
-        dist.list = (0:15)*120)
+        dist.list = (0:15)*120,
+        save.plots = F)
 ```
 
 
+- spatial plot of *Grp* and L5/IT
+<center>![Fig 1](./tmp/Grp_L5.IT_spatial.pdf){width=50%}</center>
 
+- *Grp* expression profile in scRNA reference data
+<center>![Fig 2](./tmp/Grp_L5.IT_expr.pdf){width=50%}</center>
 
+- SPER curve of *Grp*&L5/IT pair
+<center>![Fig 3](./tmp/Grp_L5.IT_curve.pdf){width=50%}</center>
 
 
 

@@ -40,7 +40,7 @@ gg_gene <- function(feature,
 #' @import ggplot2
 #' @param cell.type       Cell Type Name
 #' @param gene.id         Gene ID
-#' @param score           SPER score shown in the plot title
+#' @param SPER.score           SPER score shown in the plot title
 #' @param thershold       Threshold for the proportion of given cell type; spots whose value larger than this
 #' threshold will be marked in the spatial map
 #' @param coord           Spatial coordinates for 'gg_gene'
@@ -51,11 +51,12 @@ gg_gene <- function(feature,
 #' @param SPER.data       SPER list to plot the SPER curve
 #' @param dist.list       A vector containing the list of desired distance values
 #' @param plot.dir        Directory to save the plots
+#' @param save.plots      Whether save plots as files or return them as objects; default is FALSE, which returns plots as objects
 #' @return Null
 #' @export
 plotSDG <- function(cell.type,
                     gene.id,
-                    score = NULL,
+                    SPER.score = NULL,
                     thershold = 0.3,
                     coord,
                     ST.data,
@@ -63,21 +64,17 @@ plotSDG <- function(cell.type,
                     reference.data,
                     SPER.data,
                     dist.list,
-                    plot.dir = "./Plots/Feature Gene/"){
+                    plot.dir = "./Plots/Feature Gene/",
+                    save.plots = F){
   dir.create(plot.dir, showWarnings = FALSE, recursive = T)
-  grDevices::pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
-  plot(x = dist.list,
-       y = SPER.data[[cell.type]][,gene.id], type = "b",
-       xlab = "Distance / microns",
-       ylab = "Expression Ratio",
-       main = paste0(cell.type, ": ", gene.id))
-  grDevices::dev.off()
+  # grDevices::pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
+  # plot(x = dist.list,
+  #      y = SPER.data[[cell.type]][,gene.id], type = "b",
+  #      xlab = "Distance / microns",
+  #      ylab = "Expression Ratio",
+  #      main = paste0(cell.type, ": ", gene.id))
+  # grDevices::dev.off()
 
-  Seurat::VlnPlot(reference.data,
-                  features = gene.id,
-                  pt.size = 0.2,
-                  ncol = 1)
-  ggsave(paste0(plot.dir, gene.id, " expr.pdf"), width = 8, height = 5)
   int_signal <- (ST.data[,gene.id] > 0) + as.numeric(CoDa.data[,cell.type] > thershold) * 2
   p1 <- ggplot() +
     geom_point(aes(x = coord$imagecol,
@@ -91,8 +88,41 @@ plotSDG <- function(cell.type,
                                   paste0(cell.type, " > ", thershold*100 ,"%"), "Overlap")) +
     labs(x = "X / microns",
          y = "Y / microns",
-         title = paste0(gene.id, "/", cell.type,": ", score)) +
+         title = paste0(gene.id, "/", cell.type,": ", SPER.score)) +
     theme(aspect.ratio = 1)
-  ggsave(paste0(plot.dir, gene.id, " spatial.pdf"), p1, width = 6, height = 5)
-  return()
+
+  p2 <- Seurat::VlnPlot(reference.data,
+                        features = gene.id,
+                        pt.size = 0.2,
+                        ncol = 1)
+
+  p3 <- ggplot(aes(x = dist.list,
+                   y = SPER.data[[cell.type]][,gene.id])) +
+    geom_point() +
+    geom_line() +
+    theme_bw() +
+    labs(x = "Distance / microns",
+         y = "Expression Ratio",
+         title = paste0(cell.type, ": ", gene.id))
+
+  if(save.plots){
+    ggsave(paste0(plot.dir, gene.id, " spatial.pdf"), p1, width = 6, height = 5)
+    ggsave(paste0(plot.dir, gene.id, " expr.pdf"), p2, width = 8, height = 5)
+    ggsave(paste0(plot.dir, gene.id, " curve.pdf"), p3, width = 5, height = 4)
+
+    return()
+  }else{
+    return(p1, p2, p3)
+  }
 }
+
+
+
+
+
+
+
+
+
+
+

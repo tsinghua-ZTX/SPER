@@ -8,17 +8,12 @@ findSDG(
   cell.type,
   score.mat,
   extra.gene.list,
-  expr.mat,
   LRP.data,
   marker.gene,
   ratio.threshold = 1.5,
   expr.fraction = 0.15,
-  method.name = "Multiply",
   only.extra = T,
-  plot.feature = T,
-  return.numbers = F,
-  calc.receptor.frac = F,
-  except.marker = T
+  method.name = "SPER"
 )
 }
 \arguments{
@@ -28,9 +23,7 @@ findSDG(
 
 \item{extra.gene.list}{The gene list of interest: could be extracellular or ligand gene sets}
 
-\item{expr.mat}{Expression prevalence matrix}
-
-\item{LRP.data}{Ligand-receptor pair data}
+\item{LRP.data}{Ligand-receptor pair data; used to find the receptors of found paracrine signals}
 
 \item{marker.gene}{The marker gene matrix with a column 'Type' indicating the cell type information and 'Gene' indicating the gene ID}
 
@@ -38,20 +31,12 @@ findSDG(
 
 \item{expr.fraction}{Threshold on expression prevalence: pairs whose prevalence smaller than the threshold will be kept}
 
-\item{method.name}{Name of the method}
-
 \item{only.extra}{Boolean value: only consider the candidate genes}
 
-\item{plot.feature}{Boolean value: plot the SDG using 'plotFeatureGene'}
-
-\item{return.numbers}{Boolean value: return the statistical results of hypergeometric test}
-
-\item{calc.receptor.frac}{Boolean value: calculate the fraction of receptors that expressed in the target cell types. A column of these receptors must be provided in the extra.gene.list as 'gene2'.}
-
-\item{except.marker}{Boolean value: ignore the marker of the cell types}
+\item{method.name}{Name of the method; default is SPER}
 }
 \value{
-Scaled vector
+A gene list containing the spatial dependent genes
 }
 \description{
 This function helps find the SDG based on the given threshold in both SPER scores and

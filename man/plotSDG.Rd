@@ -7,7 +7,7 @@
 plotSDG(
   cell.type,
   gene.id,
-  score = NULL,
+  SPER.score = NULL,
   thershold = 0.3,
   coord,
   ST.data,
@@ -15,7 +15,8 @@ plotSDG(
   reference.data,
   SPER.data,
   dist.list,
-  plot.dir = "./Plots/Feature Gene/"
+  plot.dir = "./Plots/Feature Gene/",
+  save.plots = F
 )
 }
 \arguments{
@@ -23,7 +24,7 @@ plotSDG(
 
 \item{gene.id}{Gene ID}
 
-\item{score}{SPER score shown in the plot title}
+\item{SPER.score}{SPER score shown in the plot title}
 
 \item{thershold}{Threshold for the proportion of given cell type; spots whose value larger than this
 threshold will be marked in the spatial map}
@@ -42,6 +43,8 @@ distribution}
 \item{dist.list}{A vector containing the list of desired distance values}
 
 \item{plot.dir}{Directory to save the plots}
+
+\item{save.plots}{Whether save plots as files or return them as objects; default is FALSE, which returns plots as objects}
 }
 \value{
 Null

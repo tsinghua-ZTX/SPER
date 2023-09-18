@@ -14,9 +14,7 @@ RoxygenNote: 7.2.3
 Imports: 
     dplyr (>= 1.1.2),
     ggplot2 (>= 3.4.0),
-    grDevices,
-    Seurat (>= 4.3.0),
-    stats
+    Seurat (>= 4.3.0)
 Suggests: 
     knitr,
     rmarkdown

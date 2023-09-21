@@ -102,114 +102,110 @@ weightSPER <- function(reshape.pair.list,
   return(res)
 }
 
-####  Plot should be in another function, or just another command after getting this SDG list
-#' Find the spatial dependent gene (SDG) based on SPER scores
+#' Find the putative paracrine signals based on SPER scores
 #'
-#' This function helps find the SDG based on the given threshold in both SPER scores and
-#' expression prevalence.
+#' This function helps find the potential signals based on the given threshold in both SPER scores and
+#' expression prevalence. One can provide the marker (cell-type-specific) gene list and ligand-receptor pair data to
+#' limit the search range and get a more precise result.
 #'
-#' @import dplyr
-#' @param cell.type       Cell Type Name
+#' @param target.cell     Target ell Type Name
 #' @param score.mat       Score matrix (SPER, or correlations)
-#' @param extra.gene.list The gene list of interest: could be extracellular or ligand gene sets
-# #' @param expr.mat        Expression prevalence matrix
-#' @param LRP.data        Ligand-receptor pair data; used to find the receptors of found paracrine signals
+#' @param gene.set        The gene list of interest: could be extracellular or ligand gene sets
+#' @param expr.frac.mat   Expression prevalence matrix: matrix values from 0 to 1, showing the percentage of cells in that cell type expressing the gene.
+#' @param LRP.data        Ligand-receptor pair data; used to find the receptors of found paracrine signals; should contain at least two columns: 'gene1' for the ligands and 'gene2' for receptors
 #' @param marker.gene     The marker gene matrix with a column 'Type' indicating the cell type information and 'Gene' indicating the gene ID
 #' @param ratio.threshold Threshold on the score: pairs whose scores larger than the threshold will be kept
 #' @param expr.fraction   Threshold on expression prevalence: pairs whose prevalence smaller than the threshold will be kept
-#' @param only.extra      Boolean value: only consider the candidate genes
-# #' @param plot.feature    Boolean value: plot the SDG using 'plotFeatureGene'
-# #' @param return.numbers  Boolean value: return the statistical results of hypergeometric test
-# #' @param calc.receptor.frac Boolean value: calculate the fraction of receptors that expressed in the target cell types. A column of these receptors must be provided in the extra.gene.list as 'gene2'.
-# #' @param except.marker   Boolean value: ignore the marker of the cell types
-#' @param method.name     Name of the method; default is SPER
-#' @return A gene list containing the spatial dependent genes
+# #' @param method.name     Name of the method; default is SPER
+#' @return A gene list containing the spatial dependent genes; if LRP data provided, return a data frame containing both ligand and receptor information
 #' @export
-findSDG <- function(cell.type,
-                    score.mat,
-                    extra.gene.list,
-                    # expr.mat,
-                    LRP.data,
-                    marker.gene,
-                    ratio.threshold = 1.5,
-                    expr.fraction = 0.15,
-                    only.extra = T,
-                    # plot.feature = T,
-                    # return.numbers = F,
-                    # calc.receptor.frac = F,
-                    # except.marker = T,
-                    method.name = "SPER"
-                    ){
-  marker_id <- intersect(marker.gene$Gene[which(marker.gene$Type == cell.type)], rownames(score.mat))
-  feature.gene.list <- setdiff(rownames(score.mat)[which(score.mat[,cell.type] > ratio.threshold)],
-                               marker_id)
-  # feature.gene.list <- intersect(feature.gene.list,
-  #                                rownames(expr_frac_matrix)[which(expr_frac_matrix[,cell.type] < expr.fraction)])
+findSPERsignals <- function(target.cell,
+                            score.mat,
+                            expr.frac.mat,
+                            marker.gene = NULL,
+                            gene.set = NULL,
+                            LRP.data = NULL,
+                            ratio.threshold = 1.5,
+                            expr.fraction = 0.15
+                            # only.extra = T,
+                            # plot.feature = T,
+                            # return.numbers = F,
+                            # calc.receptor.frac = F,
+                            # except.marker = T,
+                            # method.name = "SPER"
+                            ){
+
+  feature.gene.list <- rownames(score.mat)[which(score.mat[,target.cell] > ratio.threshold)]
+
+  ##  First, remove the marker genes from our candidates
+  if(!is.null(marker.gene)){
+    marker_id <- intersect(marker.gene$Gene[which(marker.gene$Type == target.cell)], rownames(score.mat))
+    feature.gene.list <- setdiff(feature.gene.list, marker_id)
+  }
+
+  ##  Return if no SDG is found
   if(length(feature.gene.list) == 0){
     print("No feature gene found.")
-    #if(return.numbers){return(c(1,0,0))}
-    #if(calc.receptor.frac){return(c(1,0,0))}
-    return(NULL)
-  }
-  if(only.extra){
-    feature.gene.list <- intersect(feature.gene.list, extra.gene.list)
+    return()
   }
 
-  ##  Plot the feature gene's spatial plot
-  # if(plot.feature){
-  #   plot.dir <- paste0("./Plots/Feature Gene/", method.name, "/", cell.type, "/")
-  #   dir.create(plot.dir, recursive = T, showWarnings = F)
-  #   tmp <- sapply(feature.gene.list,
-  #                 plotSDG,
-  #                 cell.type = cell.type,
-  #                 plot.dir = plot.dir)
-  # }
+  ##  If scRNA-seq expression matrix provided, find SDG only below given expression fraction threshold
+  if(!is.null(expr.frac.mat)){
+    expr_frac_filtered_gene <- rownames(expr.frac.mat)[which(expr.frac.mat[,target.cell] < expr.fraction)]
+    feature.gene.list <- intersect(feature.gene.list, expr_frac_filtered_gene)
+    ##  Return if no SDG is found
+    if(length(feature.gene.list) == 0){
+      print("No feature gene found.")
+      return()
+    }
+  }
 
+  ##  If interested gene set provided, find SDG only within the set
+  if(!is.null(gene.set)){
+    feature.gene.list <- intersect(feature.gene.list, gene.set)
+    ##  Return if no SDG is found
+    if(length(feature.gene.list) == 0){
+      print("No feature gene found.")
+      return()
+    }
+  }
 
-  # res <- stats::phyper(length(extra.feature.gene.list) - 1,
-  #                      length(extra.gene.list),
-  #                      nrow(score.mat) - length(extra.gene.list),
-  #                      length(feature.gene.list),
-  #                      lower.tail = FALSE)
+  ##  If LRP data provided, find SDG only in ligand list
+  if(!is.null(LRP.data)){
+    feature.gene.list <- intersect(feature.gene.list, LRP.data$gene1)
 
-  ##  Return both p-value and receptor fraction
-  # if(calc.receptor.frac){
-  #   if(is.null(LRP.data$gene2)){
-  #     print("Please provide receptor gene as 'gene2'.")
-  #     return(res)
-  #   }
-  #   LRP.data <- LRP.data %>%
-  #     filter(gene2 %in% rownames(score.mat)) %>%
-  #     filter(gene1 %in% rownames(score.mat))
-  #
-  #   tmp <- LRP.data %>%
-  #     filter(gene1 %in% extra.feature.gene.list)
-  #   potential.receptor <- unique(tmp$gene2)
-  #   potential.receptor <- potential.receptor[which(expr.mat[potential.receptor,cell.type] > 0.5)]
-  #   tmp2 <- tmp %>%
-  #     filter(gene2 %in% potential.receptor)
-  #
-  #   potential.receptor <- unique(LRP.data$gene2)
-  #   potential.receptor <- potential.receptor[which(expr.mat[potential.receptor,cell.type] > 0.5)]
-  #   tmp2_remain <- LRP.data %>%
-  #     filter(gene2 %in% potential.receptor)
-  #
-  #   if(nrow(tmp2) == 0){return(c(1,0,0))}
-  #   res <- stats::phyper(nrow(tmp2) - 1,
-  #                        nrow(tmp2_remain),
-  #                        nrow(LRP.data) - nrow(tmp2_remain),
-  #                        nrow(tmp),
-  #                        lower.tail = FALSE)
-  #   return(c(res, nrow(tmp2), nrow(tmp)))
-  #
-  # }
+    ##  Return if no SDG is found
+    if(length(feature.gene.list) == 0){
+      print("No putative paracrine gene found.")
+      return()
+    }
+    ##  Furthermore, show the expression of receptors in target cells: maybe in another function called 'findSDGreceptor'
+    receptor_list <- LRP.data[which(LRP.data$gene1 %in% feature.gene.list), ]
+    tmp_expr_frac_mat <- expr.frac.mat[,target.cell]
+    names(tmp_expr_frac_mat) <- rownames(expr.frac.mat)
+    filtered_LRP <- matrix(0, 1, 3)
+    for(i in 1:nrow(receptor_list)){
+      receptor_ID <- receptor_list[i, "gene2"]
 
-  ##  Return both p-value and number of catch
-  # if(return.numbers){
-  #   return(c(res, length(extra.feature.gene.list), length(feature.gene.list)))
-  # }
+      if(!(receptor_ID %in% rownames(expr.frac.mat))){next}
 
+      if(tmp_expr_frac_mat[receptor_ID] > 0){
+        filtered_LRP <- rbind(filtered_LRP,
+                              c(receptor_list[i, "gene1"],
+                                receptor_list[i, "gene2"],
+                                tmp_expr_frac_mat[receptor_ID]))
+      }
+    }
+    if(nrow(filtered_LRP) == 1){
+      return("No putative paracrine ligand found.")
+    }
+    filtered_LRP <- as.data.frame(filtered_LRP[-1,])
+    colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Expression_frac")
+    filtered_LRP$SPER_score <- score.mat[filtered_LRP$SPER_ligand, target.cell]
+    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Expression_frac"], decreasing = T),]
+    return(filtered_LRP)
+  }
 
-  ##  Return just the p-value
+  ##  Return the SDG gene list
   return(feature.gene.list)
 }

@@ -45,6 +45,13 @@ gg_gene("Grp",
 head(spatial_comp_data)
 ```
 
+  - Additionally, on can also generate the cell-type spatial distribution through the function used above
+```{r, fig.width = 6, fig.height = 5}
+gg_gene("L5.IT",
+        spatial_comp_data,
+        coord = ST_coordinates,
+        title.anno = "Compositional")
+```
 
 ## SPER: 
 - With given data, we can run SPER and get the outcome as a list. The list has each gene as the name of an element where it actually contains the spatial paired expression matrix between the gene and all cell types. 
@@ -71,6 +78,42 @@ head(SPER_res)
 
 - After applying the weight, we can finally get the matrix of SPER scores for each gene/cell-type pair. In the matrix, the values represent, depending the weights you have applied, the strength of spatial relationship between the gene and cells. In our example, we used the 'paracrine' weight which has its focus on the distance of 240, 360, and 480 microns.
 
+## Find potential paracrine signals by SPER scores
+
+- Once we get the SPER scores, the next step is to find genes that may potentially be paracrine signals. Several criteria for such a gene can be:
+  1. Theoretically, a ligand should not be a marker genes (cell-type-specific gene) for the target cells, although they both have a high spatial dependence to the target cells. Therefore, we want to remove the markers first when finding our markers.
+  2. A gene should be located at extracellular space to serve as a signals. Furthermore, if it is a well-known gene, we should expect it appearing in a ligand-receptor pair database as a ligand gene. 
+  3. 
+  
+```{r, eval=F}
+##  Provided cell-type-specific gene sets: P values are unnecessary, as long as it includes 'Gene' and 'Type'
+marker_gene <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Marker_gene.txt", 
+                          sep = "\t",
+                          check.names = F)
+
+##  Ligand-receptor pair dataset: gene1 is the ligand and gene2 is the receptor
+LRP_data <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Mouse_LRP_data.txt", 
+                       sep = "\t",
+                       check.names = F)
+##  Expression fraction data: showing genes' expression prevalence in each cell types
+example_expr_frac <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Expr_frac_matrix.txt",
+                                sep = "\t",
+                                check.names = F)
+# example_expr_frac <- example_expr_frac[rownames(SPER_res),]
+head(example_expr_frac)
+```
+
+
+```{r, eval = F}
+L5_IT_signals <- findSPERsignals(target.cell = "L5.IT",
+                                 score.mat = SPER_res,
+                                 expr.frac.mat = example_expr_frac,
+                                 marker.gene = marker_gene,
+                                 LRP.data = LRP_data)
+L5_IT_signals
+```
+
+
 ## Visualization:
 
 - To visualize our SPER results, we may need more data than what have been provided in the package. Specifically, we will need: 
@@ -87,15 +130,7 @@ allen_reference <- readRDS("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/
 allen_reference <- SetIdent(allen_reference,
                             value = "subclass")
 
-##  Provided cell-type-specific gene sets: P values are unnecessary, as long as it includes 'Gene' and 'Type'
-marker_gene <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Marker_gene.txt", 
-                          sep = "\t",
-                          check.names = F)
 
-##  Ligand-receptor pair dataset: gene1 is the ligand and gene2 is the receptor
-LPR_data <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Mouse_LRP_data.txt", 
-                       sep = "\t",
-                       check.names = F)
 ```
 
 ```{r, eval = F}

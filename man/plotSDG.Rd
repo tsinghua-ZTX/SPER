@@ -8,7 +8,8 @@ plotSDG(
   cell.type,
   gene.id,
   SPER.score = NULL,
-  thershold = 0.3,
+  cell.thershold = 0.3,
+  min.expr = 1,
   coord,
   ST.data,
   CoDa.data,
@@ -26,8 +27,10 @@ plotSDG(
 
 \item{SPER.score}{SPER score shown in the plot title}
 
-\item{thershold}{Threshold for the proportion of given cell type; spots whose value larger than this
+\item{cell.thershold}{Threshold for the proportion of given cell type; spots whose value larger than this
 threshold will be marked in the spatial map}
+
+\item{min.expr}{Minimal expression value to plot (integer); only spots with given gene's expression greater than this value will be plotted}
 
 \item{coord}{Spatial coordinates for 'gg_gene'}
 

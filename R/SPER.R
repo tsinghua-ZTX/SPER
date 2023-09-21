@@ -189,7 +189,7 @@ findSPERsignals <- function(target.cell,
 
       if(!(receptor_ID %in% rownames(expr.frac.mat))){next}
 
-      if(tmp_expr_frac_mat[receptor_ID] > 0){
+      if(tmp_expr_frac_mat[receptor_ID] > 0.05){
         filtered_LRP <- rbind(filtered_LRP,
                               c(receptor_list[i, "gene1"],
                                 receptor_list[i, "gene2"],
@@ -199,7 +199,7 @@ findSPERsignals <- function(target.cell,
     if(nrow(filtered_LRP) == 1){
       return("No putative paracrine ligand found.")
     }
-    filtered_LRP <- as.data.frame(filtered_LRP[-1,])
+    filtered_LRP <- as.data.frame(filtered_LRP)[-1,]
     colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Expression_frac")
     filtered_LRP$SPER_score <- score.mat[filtered_LRP$SPER_ligand, target.cell]
     filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Expression_frac"], decreasing = T),]

@@ -40,9 +40,10 @@ gg_gene <- function(feature,
 #' @import ggplot2
 #' @param cell.type       Cell Type Name
 #' @param gene.id         Gene ID
-#' @param SPER.score           SPER score shown in the plot title
-#' @param thershold       Threshold for the proportion of given cell type; spots whose value larger than this
+#' @param SPER.score      SPER score shown in the plot title
+#' @param cell.thershold  Threshold for the proportion of given cell type; spots whose value larger than this
 #' threshold will be marked in the spatial map
+#' @param min.expr        Minimal expression value to plot (integer); only spots with given gene's expression greater than this value will be plotted
 #' @param coord           Spatial coordinates for 'gg_gene'
 #' @param ST.data         Spatial transcriptomics data, used for the spatial map of the gene's expression
 #' @param CoDa.data       Cell-type spatial compositional data, used for the spatial map of cell-type
@@ -57,7 +58,8 @@ gg_gene <- function(feature,
 plotSDG <- function(cell.type,
                     gene.id,
                     SPER.score = NULL,
-                    thershold = 0.3,
+                    cell.thershold = 0.3,
+                    min.expr = 1,
                     coord,
                     ST.data,
                     CoDa.data,
@@ -75,7 +77,7 @@ plotSDG <- function(cell.type,
   #      main = paste0(cell.type, ": ", gene.id))
   # grDevices::dev.off()
 
-  int_signal <- (ST.data[,gene.id] > 0) + as.numeric(CoDa.data[,cell.type] > thershold) * 2
+  int_signal <- (ST.data[,gene.id] >= min.expr) + as.numeric(CoDa.data[,cell.type] > cell.thershold) * 2
   p1 <- ggplot() +
     geom_point(aes(x = coord$imagecol,
                    y = coord$imagerow,
@@ -85,7 +87,7 @@ plotSDG <- function(cell.type,
                        breaks = 0:3,
                        values = c("gray", "darkred", "darkblue", "purple"),
                        labels = c("Other", paste0(gene.id),
-                                  paste0(cell.type, " > ", thershold*100 ,"%"), "Overlap")) +
+                                  paste0(cell.type, " > ", cell.thershold*100 ,"%"), "Overlap")) +
     labs(x = "X / microns",
          y = "Y / microns",
          title = paste0(gene.id, "/", cell.type,": ", SPER.score)) +

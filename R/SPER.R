@@ -114,7 +114,7 @@ weightSPER <- function(reshape.pair.list,
 #' @param expr.frac.mat   Expression prevalence matrix: matrix values from 0 to 1, showing the percentage of cells in that cell type expressing the gene.
 #' @param LRP.data        Ligand-receptor pair data; used to find the receptors of found paracrine signals; should contain at least two columns: 'gene1' for the ligands and 'gene2' for receptors
 #' @param marker.gene     The marker gene matrix with a column 'Type' indicating the cell type information and 'Gene' indicating the gene ID
-#' @param ratio.threshold Threshold on the score: pairs whose scores larger than the threshold will be kept
+#' @param score.threshold Threshold on the score: pairs whose scores larger than the threshold will be kept
 #' @param expr.fraction   Threshold on expression prevalence: pairs whose prevalence smaller than the threshold will be kept
 # #' @param method.name     Name of the method; default is SPER
 #' @return A gene list containing the spatial dependent genes; if LRP data provided, return a data frame containing both ligand and receptor information
@@ -125,7 +125,7 @@ findSPERsignals <- function(target.cell,
                             marker.gene = NULL,
                             gene.set = NULL,
                             LRP.data = NULL,
-                            ratio.threshold = 1.5,
+                            score.threshold = 1.5,
                             expr.fraction = 0.15
                             # only.extra = T,
                             # plot.feature = T,
@@ -135,7 +135,7 @@ findSPERsignals <- function(target.cell,
                             # method.name = "SPER"
                             ){
 
-  feature.gene.list <- rownames(score.mat)[which(score.mat[,target.cell] > ratio.threshold)]
+  feature.gene.list <- rownames(score.mat)[which(score.mat[,target.cell] > score.threshold)]
 
   ##  First, remove the marker genes from our candidates
   if(!is.null(marker.gene)){
@@ -203,6 +203,16 @@ findSPERsignals <- function(target.cell,
     colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Expression_frac")
     filtered_LRP$SPER_score <- score.mat[filtered_LRP$SPER_ligand, target.cell]
     filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Expression_frac"], decreasing = T),]
+
+    SPER_sorted_name <- rownames(score.mat)[order(score.mat[, target.cell], decreasing = T)]
+    SPER_rank <- which(SPER_sorted_name %in% filtered_LRP$SPER_ligand)
+    names(SPER_rank) <- SPER_sorted_name[SPER_rank]
+    for(i in 1:nrow(filtered_LRP)){
+      filtered_LRP$Score_rank[i] <- SPER_rank[filtered_LRP$SPER_ligand[i]]
+    }
+
+
+    rownames(filtered_LRP) <- 1:nrow(filtered_LRP)
     return(filtered_LRP)
   }
 

@@ -11,7 +11,7 @@ findSPERsignals(
   marker.gene = NULL,
   gene.set = NULL,
   LRP.data = NULL,
-  ratio.threshold = 1.5,
+  score.threshold = 1.5,
   expr.fraction = 0.15
 )
 }
@@ -28,7 +28,7 @@ findSPERsignals(
 
 \item{LRP.data}{Ligand-receptor pair data; used to find the receptors of found paracrine signals; should contain at least two columns: 'gene1' for the ligands and 'gene2' for receptors}
 
-\item{ratio.threshold}{Threshold on the score: pairs whose scores larger than the threshold will be kept}
+\item{score.threshold}{Threshold on the score: pairs whose scores larger than the threshold will be kept}
 
 \item{expr.fraction}{Threshold on expression prevalence: pairs whose prevalence smaller than the threshold will be kept}
 }

@@ -211,8 +211,8 @@ findSPERsignals <- function(target.cell,
       filtered_LRP$Score_rank[i] <- SPER_rank[filtered_LRP$SPER_ligand[i]]
     }
 
-
     rownames(filtered_LRP) <- 1:nrow(filtered_LRP)
+    filtered_LRP$Cell_type <- target.cell
     return(filtered_LRP)
   }
 

@@ -200,9 +200,9 @@ findSPERsignals <- function(target.cell,
       return("No putative paracrine ligand found.")
     }
     filtered_LRP <- as.data.frame(filtered_LRP)[-1,]
-    colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Expression_frac")
+    colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Receptor_frac")
     filtered_LRP$SPER_score <- score.mat[filtered_LRP$SPER_ligand, target.cell]
-    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Expression_frac"], decreasing = T),]
+    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Receptor_frac"], decreasing = T),]
 
     SPER_sorted_name <- rownames(score.mat)[order(score.mat[, target.cell], decreasing = T)]
     SPER_rank <- which(SPER_sorted_name %in% filtered_LRP$SPER_ligand)

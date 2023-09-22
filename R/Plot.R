@@ -55,27 +55,20 @@ gg_gene <- function(feature,
 #' @param save.plots      Whether save plots as files or return them as objects; default is FALSE, which returns plots as objects
 #' @return Null
 #' @export
-plotSDG <- function(cell.type,
-                    gene.id,
-                    SPER.score = NULL,
-                    cell.thershold = 0.3,
-                    min.expr = 1,
-                    coord,
-                    ST.data,
-                    CoDa.data,
-                    reference.data,
-                    SPER.data,
-                    dist.list,
-                    plot.dir = "./Plots/",
-                    save.plots = F){
+plotSPER <- function(cell.type,
+                     gene.id,
+                     SPER.score = NULL,
+                     cell.thershold = 0.3,
+                     min.expr = 1,
+                     coord,
+                     ST.data,
+                     CoDa.data,
+                     reference.data,
+                     SPER.data,
+                     dist.list,
+                     plot.dir = "./Plots/",
+                     save.plots = F){
   dir.create(plot.dir, showWarnings = FALSE, recursive = T)
-  # grDevices::pdf(paste0(plot.dir, gene.id, " curve.pdf"), width = 5, height = 4)
-  # plot(x = dist.list,
-  #      y = SPER.data[[cell.type]][,gene.id], type = "b",
-  #      xlab = "Distance / microns",
-  #      ylab = "Expression Ratio",
-  #      main = paste0(cell.type, ": ", gene.id))
-  # grDevices::dev.off()
 
   int_signal <- (ST.data[,gene.id] >= min.expr) + as.numeric(CoDa.data[,cell.type] > cell.thershold) * 2
   p1 <- ggplot() +
@@ -115,7 +108,11 @@ plotSDG <- function(cell.type,
 
     return()
   }else{
-    return(list(p1, p2, p3))
+    res <- list(p1, p2, p3)
+    names(res) <- c(paste0(gene.id, "->", cell.type, " spatial plot"),
+                    paste0(gene.id, " expression in scRNA reference"),
+                    paste0(gene.id, "->", cell.type, " SPER curve"))
+    return(res)
   }
 }
 

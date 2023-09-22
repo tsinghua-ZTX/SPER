@@ -134,15 +134,15 @@ allen_reference <- SetIdent(allen_reference,
 ```
 
 ```{r, eval = F}
-plotSDG(cell.type = "L5.IT",
-        gene.id = "Grp",
-        coord = ST_coordinates,
-        ST.data = ST_expression_data,
-        CoDa.data = spatial_comp_data,
-        reference.data = allen_reference,
-        SPER.data = res,
-        dist.list = (0:15)*120,
-        save.plots = F)
+plotSPER(cell.type = "L5.IT",
+         gene.id = "Grp",
+         coord = ST_coordinates,
+         ST.data = ST_expression_data,
+         CoDa.data = spatial_comp_data,
+         reference.data = allen_reference,
+         SPER.data = res,
+         dist.list = (0:15)*120,
+         save.plots = F)
 ```
 
 

@@ -193,7 +193,7 @@ findSPERsignals <- function(target.cell,
         filtered_LRP <- rbind(filtered_LRP,
                               c(receptor_list[i, "gene1"],
                                 receptor_list[i, "gene2"],
-                                tmp_expr_frac_mat[receptor_ID]))
+                                round(tmp_expr_frac_mat[receptor_ID], 4)))
       }
     }
     if(nrow(filtered_LRP) == 1){
@@ -201,7 +201,7 @@ findSPERsignals <- function(target.cell,
     }
     filtered_LRP <- as.data.frame(filtered_LRP)[-1,]
     colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Receptor_frac")
-    filtered_LRP$SPER_score <- score.mat[filtered_LRP$SPER_ligand, target.cell]
+    filtered_LRP$SPER_score <- round(score.mat[filtered_LRP$SPER_ligand, target.cell], 4)
     filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Receptor_frac"], decreasing = T),]
 
     SPER_sorted_name <- rownames(score.mat)[order(score.mat[, target.cell], decreasing = T)]

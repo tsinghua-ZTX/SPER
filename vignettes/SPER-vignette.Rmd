@@ -7,15 +7,17 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(SPER)
 ##  Other necessary libraries
 library(Seurat)
+if (!require("ggpubr")) install.packages("ggpubr")
+library(ggpubr)
 ```
 
-# Example: adult mouse brain spatial transciptomics dataset
+## Example: adult mouse brain spatial transciptomics dataset
 
-## Dataset
+### Dataset
 - We have provided a small example where you have 37 genes across 2695 spots in the spatial transcriptomics (ST) data 'ST_expression_data'. We also included the physical coordinates of all these spots as 'ST_coordinates'. 
   
 ```{r}
@@ -46,15 +48,28 @@ head(spatial_comp_data)
 ```
 
   - Additionally, on can also generate the cell-type spatial distribution through the function used above
-```{r, fig.width = 6, fig.height = 5}
-gg_gene("L5.IT",
-        spatial_comp_data,
-        coord = ST_coordinates,
-        title.anno = "Compositional")
+```{r, fig.width = 7, fig.height = 7}
+p1 <- gg_gene("L2.3.IT",
+              spatial_comp_data,
+              coord = ST_coordinates,
+              title.anno = "Compositional")
+p2 <- gg_gene("L4",
+              spatial_comp_data,
+              coord = ST_coordinates,
+              title.anno = "Compositional")
+p3 <- gg_gene("L5.IT",
+              spatial_comp_data,
+              coord = ST_coordinates,
+              title.anno = "Compositional")
+p4 <- gg_gene("L6.IT",
+              spatial_comp_data,
+              coord = ST_coordinates,
+              title.anno = "Compositional")
+ggarrange(p1, p2, p3, p4)
 ```
 
 ## SPER: 
-- With given data, we can run SPER and get the outcome as a list. The list has each gene as the name of an element where it actually contains the spatial paired expression matrix between the gene and all cell types. 
+-  With given data, we can run SPER and get the outcome as a list. The list has each gene as the name of an element where it actually contains the spatial paired expression matrix between the gene and all cell types. 
 
 ```{r}
 res <- SPER(dist.mat = round_dist_mat,
@@ -87,16 +102,16 @@ head(SPER_res)
   
 ```{r, eval=F}
 ##  Provided cell-type-specific gene sets: P values are unnecessary, as long as it includes 'Gene' and 'Type'
-marker_gene <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Marker_gene.txt", 
+marker_gene <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Data/Marker_gene.txt", 
                           sep = "\t",
                           check.names = F)
 
 ##  Ligand-receptor pair dataset: gene1 is the ligand and gene2 is the receptor
-LRP_data <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Mouse_LRP_data.txt", 
+LRP_data <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Data/Mouse_LRP_data.txt", 
                        sep = "\t",
                        check.names = F)
 ##  Expression fraction data: showing genes' expression prevalence in each cell types
-example_expr_frac <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Expr_frac_matrix.txt",
+example_expr_frac <- read.table("~/Desktop/Dropbox_NYU/Dropbox/SPER/SPER_public_data/Data/Expr_frac_matrix.txt",
                                 sep = "\t",
                                 check.names = F)
 # example_expr_frac <- example_expr_frac[rownames(SPER_res),]

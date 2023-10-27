@@ -1,6 +1,6 @@
 Package: SPER
 Title: Spatial Paired Expression Ratio
-Version: 0.1.3
+Version: 0.2.0
 Authors@R: c(
   person(given = "Tianxiao", family = "Zhao", 
          email = "Tianxiao.Zhao@nyulangone.org", role = c("aut", "cre")),    

@@ -108,6 +108,7 @@ weightSPER <- function(reshape.pair.list,
 #' expression prevalence. One can provide the marker (cell-type-specific) gene list and ligand-receptor pair data to
 #' limit the search range and get a more precise result.
 #'
+#' @import dplyr
 #' @param target.cell     Target ell Type Name
 #' @param score.mat       Score matrix (SPER, or correlations)
 #' @param gene.set        The gene list of interest: could be extracellular or ligand gene sets
@@ -136,6 +137,7 @@ findSPERsignals <- function(target.cell,
                             ){
 
   feature.gene.list <- rownames(score.mat)[which(score.mat[,target.cell] > score.threshold)]
+  # feature.gene.list <- sort(feature.gene.list, decreasing = F)
 
   ##  First, remove the marker genes from our candidates
   if(!is.null(marker.gene)){
@@ -170,17 +172,22 @@ findSPERsignals <- function(target.cell,
     }
   }
 
+  SPER_res_table <- data.frame("Putative_ligand" = feature.gene.list,
+                               "Target_cell_type" = target.cell,
+                               "SPER_score" = round(score.mat[feature.gene.list, target.cell], 4))
+  SPER_res_table <- SPER_res_table[order(SPER_res_table[,3], decreasing = T),]
+
   ##  If LRP data provided, find SDG only in ligand list
   if(!is.null(LRP.data)){
-    feature.gene.list <- intersect(feature.gene.list, LRP.data$gene1)
+    LRP.feature.gene.list <- intersect(feature.gene.list, LRP.data$gene1)
 
     ##  Return if no SDG is found
-    if(length(feature.gene.list) == 0){
+    if(length(LRP.feature.gene.list) == 0){
       print("No putative paracrine gene found.")
       return()
     }
     ##  Furthermore, show the expression of receptors in target cells: maybe in another function called 'findSDGreceptor'
-    receptor_list <- LRP.data[which(LRP.data$gene1 %in% feature.gene.list), ]
+    receptor_list <- LRP.data[which(LRP.data$gene1 %in% LRP.feature.gene.list), ]
     tmp_expr_frac_mat <- expr.frac.mat[,target.cell]
     names(tmp_expr_frac_mat) <- rownames(expr.frac.mat)
     filtered_LRP <- matrix(0, 1, 3)
@@ -199,23 +206,33 @@ findSPERsignals <- function(target.cell,
     if(nrow(filtered_LRP) == 1){
       return("No putative paracrine ligand found.")
     }
+
     filtered_LRP <- as.data.frame(filtered_LRP)[-1,]
-    colnames(filtered_LRP) <- c("SPER_ligand", "SPER_receptor", "Receptor_frac")
-    filtered_LRP$SPER_score <- round(score.mat[filtered_LRP$SPER_ligand, target.cell], 4)
-    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Receptor_frac"], decreasing = T),]
+    colnames(filtered_LRP) <- c("Putative_ligand", "SPER_receptor", "Receptor_fraction")
+    filtered_LRP$SPER_score <- round(score.mat[filtered_LRP$Putative_ligand, target.cell], 4)
+    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Receptor_fraction"], decreasing = T),]
 
     SPER_sorted_name <- rownames(score.mat)[order(score.mat[, target.cell], decreasing = T)]
-    SPER_rank <- which(SPER_sorted_name %in% filtered_LRP$SPER_ligand)
+    SPER_rank <- which(SPER_sorted_name %in% filtered_LRP$Putative_ligand)
     names(SPER_rank) <- SPER_sorted_name[SPER_rank]
     for(i in 1:nrow(filtered_LRP)){
-      filtered_LRP$Score_rank[i] <- SPER_rank[filtered_LRP$SPER_ligand[i]]
+      filtered_LRP$Score_rank[i] <- SPER_rank[filtered_LRP$Putative_ligand[i]]
     }
 
     rownames(filtered_LRP) <- 1:nrow(filtered_LRP)
-    filtered_LRP$Cell_type <- target.cell
+    filtered_LRP <- left_join(SPER_res_table, filtered_LRP,
+                              by = c("Putative_ligand", "SPER_score"),
+                              multiple = "all")
+    filtered_LRP$Known_paracrine_interaction <- TRUE
+    filtered_LRP$Known_paracrine_interaction[which(is.na(filtered_LRP$SPER_receptor))] <- FALSE
+
+    filtered_LRP <- filtered_LRP[order(filtered_LRP[,"SPER_score"], filtered_LRP[,"Receptor_fraction"], decreasing = T), ]
+    filtered_LRP <- filtered_LRP[,c("Putative_ligand", "Target_cell_type", "SPER_score",
+                                    "Known_paracrine_interaction", "SPER_receptor",
+                                    "Receptor_fraction", "Score_rank")]
     return(filtered_LRP)
   }
 
   ##  Return the SDG gene list
-  return(feature.gene.list)
+  return(SPER_res_table)
 }
